@@ -1,6 +1,4 @@
 import React from 'react'
-import './OpenAccount.css'
-
 const OpenAccount = () => {
   return (
     <div className='container p-5 mb-5'>
