@@ -2,7 +2,7 @@ import React from 'react'
 
 const HeroSupport = () => {
   return (
-    <div className='bg-primary container-fluid text-white mb-5'>
+    <div className='container-fluid text-white mb-5' style={{backgroundColor: "#4286c7"}}>
       <div className="container m-5 mb-0 mt-0">
         <div className="row m-5 mb-0 mt-0 p-3 pt-5">
           <div className="col-6">
