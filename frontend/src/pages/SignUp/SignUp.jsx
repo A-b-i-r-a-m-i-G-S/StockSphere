@@ -10,7 +10,7 @@ const SignUp = () => {
   // Helper function to handle successful login/signup
   const handleRedirect = () => {
     setTimeout(() => {
-      window.location.href = 'http://localhost:5174';
+      window.location.href = 'https://github.com/A-b-i-r-a-m-i-G-S/StockSphere';
     }, 1000);
   };
 
