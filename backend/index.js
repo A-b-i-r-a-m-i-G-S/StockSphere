@@ -4,10 +4,14 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
+const bcrypt = require("bcryptjs");
+const {createSecretToken} = require("./util/token")
 
 const { HoldingsModel } = require("./models/HoldingsModel");
 const { PositionsModel } = require("./models/PositionsModel");
-const { OrdersModel} = require("./models/OrdersModel");
+const { OrdersModel } = require("./models/OrdersModel");
+const { UserModel } = require("./models/UserModel")
 
 const PORT = process.env.PORT || 3000;
 const URI = process.env.MONGO_URL;
@@ -15,6 +19,7 @@ const URI = process.env.MONGO_URL;
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+app.use(cookieParser());
 
 
 // app.get("/addHoldings", async (req, res) => {
@@ -212,17 +217,17 @@ app.use(bodyParser.json());
 //     }
 // });
 
-app.get('/holdings', async (req, res)=>{
+app.get('/holdings', async (req, res) => {
     let holdings = await HoldingsModel.find({});
     res.json(holdings);
 })
 
-app.get('/positions', async (req, res)=>{
+app.get('/positions', async (req, res) => {
     let positions = await PositionsModel.find({});
     res.json(positions);
 })
 
-app.post('/order', async (req, res)=>{
+app.post('/order', async (req, res) => {
     try {
         let newOrder = new OrdersModel({
             name: req.body.name,
@@ -230,26 +235,86 @@ app.post('/order', async (req, res)=>{
             price: req.body.price,
             mode: req.body.mode,
         });
-    
+
         await newOrder.save();
 
         res.send({
-            success : true,
-            message : "Order has been placed"
+            success: true,
+            message: "Order has been placed"
         })
 
     } catch (error) {
         res.send({
-            success : false,
-            message : error.message
+            success: false,
+            message: error.message
         })
-    } 
+    }
 });
 
-app.get('/order', async (req, res)=>{
-   let orders = await OrdersModel.find({});
-   res.json(orders);
+app.get('/order', async (req, res) => {
+    let orders = await OrdersModel.find({});
+    res.json(orders);
 });
+
+app.post('/signup', async (req, res, next) => {
+    try {
+        const { email, password, username } = req.body;
+        
+        const existingUser = await UserModel.findOne({ email });
+        if (existingUser) {
+            return res.json({ message: "User already exists" });
+        }
+        
+        const user = await UserModel.create({ email, password, username });
+        const token = createSecretToken(user._id);
+        
+        res.cookie("token", token, {
+            withCredentials: true,
+            httpOnly: false,
+        });
+        res
+            .status(201)
+            .json({ message: "User signed in successfully", success: true, user });
+        next();
+    }
+    
+    catch (error) {
+        console.error(error);
+    }
+})
+
+app.post("/login", async (req, res, next) => {
+    try {
+        const { email, password } = req.body;
+        
+        if(email==="" || password==="" ){
+          return res.json({message:'All fields are required'})
+        }
+        
+        const user = await UserModel.findOne({ email });
+        if(!user){
+          return res.json({message:'Incorrect password or email' }) 
+        }
+        
+        const auth = await bcrypt.compare(password,user.password)
+        if (!auth) {
+          return res.json({message:'Incorrect password or email' }) 
+        }
+        
+        const token = createSecretToken(user._id);
+        res.cookie("token", token, {
+            withCredentials: true,
+            httpOnly: false,
+        });
+        
+        res.status(201).json({ message: "User logged in successfully", success: true });
+        next()
+      } 
+
+      catch (error) {
+        console.error(error);
+      }
+})
 
 app.listen(PORT, () => {
     console.log(`Server listening at port ${PORT}`);
