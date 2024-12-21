@@ -23,7 +23,7 @@ const SignUp = () => {
     e.preventDefault();
     try {
       const { data } = await axios.post(
-        'http://localhost:3000/signup',
+        'https://stocksphere-backend-tskz.onrender.com/signup',
         { email, username, password }
       );
       const { success, message } = data;
@@ -44,7 +44,7 @@ const SignUp = () => {
     e.preventDefault();
     try {
       const { data } = await axios.post(
-        'http://localhost:3000/login',
+        'https://stocksphere-backend-tskz.onrender.com/login',
         { email, password }
       );
       const { success, message } = data;
