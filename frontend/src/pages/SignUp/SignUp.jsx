@@ -10,7 +10,7 @@ const SignUp = () => {
   // Helper function to handle successful login/signup
   const handleRedirect = () => {
     setTimeout(() => {
-      window.location.href = 'https://github.com/A-b-i-r-a-m-i-G-S/StockSphere';
+      window.location.href = 'https://stocksphere-dashboard.onrender.com/';
     }, 1000);
   };
 
